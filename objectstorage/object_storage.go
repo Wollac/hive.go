@@ -208,13 +208,16 @@ func (objectStorage *ObjectStorage) DeleteIfPresent(key []byte) bool {
 	}
 
 	cachedObject.publishResult(nil)
-	cachedObject.Release(true)
-
 	if objectStorage.ObjectExistsInStore(key) {
+		if len(objectStorage.options.delayedOptions) >= 1 {
+			logChannel <- logEntry{time.Now(), kvstore.DeleteCommand, [][]byte{{2}, key}}
+		}
+
 		cachedObject.blindDelete.Set()
 
 		return true
 	}
+	cachedObject.Release(true)
 
 	return false
 }
