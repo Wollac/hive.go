@@ -169,7 +169,9 @@ func (objectStorage *ObjectStorage) ComputeIfAbsent(key []byte, remappingFunctio
 
 // This method deletes an element and return true if the element was deleted.
 func (objectStorage *ObjectStorage) DeleteIfPresent(key []byte) bool {
-	logChannel <- logEntry{time.Now(), kvstore.DeleteCommand, [][]byte{{0}, key}}
+	if len(objectStorage.options.delayedOptions) >= 1 {
+		logChannel <- logEntry{time.Now(), kvstore.DeleteCommand, [][]byte{{0}, key}}
+	}
 
 	if objectStorage.shutdown.IsSet() {
 		panic("trying to access shutdown object storage")

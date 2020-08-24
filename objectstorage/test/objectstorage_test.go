@@ -66,7 +66,7 @@ func testObjectFactory(key []byte) (objectstorage.StorableObject, int, error) {
 // ObjectStorage.
 func TestConcurrentCreateDelete(t *testing.T) {
 	// test parameters
-	objectCount := 50000
+	objectCount := 50
 
 	// create badger DB
 	badgerDBMissingMessageStorage, err := testutil.BadgerDB(t)
@@ -75,7 +75,7 @@ func TestConcurrentCreateDelete(t *testing.T) {
 	require.NoError(t, err)
 
 	// create ObjectStorage instances
-	missingMessageStorage := objectstorage.New(badgerDBMissingMessageStorage, testObjectFactory)
+	missingMessageStorage := objectstorage.New(badgerDBMissingMessageStorage, testObjectFactory, objectstorage.LogStoreAccess("C:\\Users\\Admin\\Desktop\\log.txt"))
 	metadataStorage := objectstorage.New(badgerDBMetadataStorage, testObjectFactory)
 
 	// create sync and async utils
