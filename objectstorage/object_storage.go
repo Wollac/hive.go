@@ -4,6 +4,7 @@ import (
 	"errors"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/iotaledger/hive.go/events"
 	"github.com/iotaledger/hive.go/kvstore"
@@ -168,6 +169,8 @@ func (objectStorage *ObjectStorage) ComputeIfAbsent(key []byte, remappingFunctio
 
 // This method deletes an element and return true if the element was deleted.
 func (objectStorage *ObjectStorage) DeleteIfPresent(key []byte) bool {
+	logChannel <- logEntry{time.Now(), kvstore.DeleteCommand, [][]byte{{0}, key}}
+
 	if objectStorage.shutdown.IsSet() {
 		panic("trying to access shutdown object storage")
 	}
@@ -177,6 +180,10 @@ func (objectStorage *ObjectStorage) DeleteIfPresent(key []byte) bool {
 
 		if storableObject := cachedObject.Get(); !typeutils.IsInterfaceNil(storableObject) {
 			if !storableObject.IsDeleted() {
+				if len(objectStorage.options.delayedOptions) >= 1 {
+					logChannel <- logEntry{time.Now(), kvstore.DeleteCommand, [][]byte{{1}, key}}
+				}
+
 				storableObject.Delete()
 				cachedObject.Release(true)
 

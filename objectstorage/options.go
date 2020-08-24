@@ -86,6 +86,8 @@ func LogAccess(fileName string) Option {
 	}
 }
 
+var logChannel chan logEntry
+
 // LogStoreAccess sets up a logger that logs all calls to the underlying store in the given file. It is possible to
 // filter the logged commands by providing an optional filter flag.
 func LogStoreAccess(fileName string, commandsFilter ...kvstore.Command) Option {
@@ -100,7 +102,7 @@ func LogStoreAccess(fileName string, commandsFilter ...kvstore.Command) Option {
 			}
 
 			// open logger channel
-			logChannel := make(chan logEntry, logChannelBufferSize)
+			logChannel = make(chan logEntry, logChannelBufferSize)
 
 			// start background worker that writes to the log file
 			go func() {
